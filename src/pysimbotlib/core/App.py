@@ -1,10 +1,10 @@
+import platform
+from pathlib import Path
+
 from kivy.config import Config
 
 Config.set("graphics", "resizable", "0")  # 0 being off 1 being on as in true/false
 Config.set("input", "mouse", "mouse,multitouch_on_demand")
-
-import platform
-from pathlib import Path
 
 # ruff: noqa: E402
 from kivy.app import App
