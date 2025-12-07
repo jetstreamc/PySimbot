@@ -21,6 +21,7 @@ def create_robots():
 
 
 if __name__ == "__main__":
-    # customfn_create_robots will override the default create_robots function which is implemented by [robot_cls() for _ in range(num_robots)]
+    # customfn_create_robots will override the default create_robots function
+    # which is implemented by [robot_cls() for _ in range(num_robots)]
     app = PySimbotApp(customfn_create_robots=create_robots)
     app.run()

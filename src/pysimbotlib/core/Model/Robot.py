@@ -9,8 +9,8 @@ from kivy.logger import Logger
 from kivy.properties import NumericProperty, ReferenceListProperty
 from kivy.uix.widget import Widget
 
-from ..Geom import Geom
-from ..Global import ROBOT_DISTANCE_ANGLES, ROBOT_MAX_SENSOR_DISTANCE, SIMBOTMAP_BOUNDING_LINES, SIMBOTMAP_SIZE
+from ..Utils.Geom import Geom
+from ..Utils.Global import ROBOT_DISTANCE_ANGLES, ROBOT_MAX_SENSOR_DISTANCE, SIMBOTMAP_BOUNDING_LINES, SIMBOTMAP_SIZE
 from .Entity import Entity
 from .Objective import Objective
 from .Obstacle import Obstacle
@@ -207,7 +207,8 @@ class Robot(Entity):
         if isinstance(index, int):
             if index < 0 or index >= len(ROBOT_DISTANCE_ANGLES):
                 raise ValueError(
-                    f"Invalid distance sensor index: {index}. The valid values are between 0 and {len(ROBOT_DISTANCE_ANGLES) - 1}"
+                    f"Invalid distance sensor index: {index}. "
+                    f"The valid values are between 0 and {len(ROBOT_DISTANCE_ANGLES) - 1}"
                 )
             else:
                 return self._distance(ROBOT_DISTANCE_ANGLES[index])
@@ -222,7 +223,8 @@ class Robot(Entity):
     def smell(self, index: int = 0) -> float:
         if index < 0 or index >= len(self._sm.objectives):
             raise ValueError(
-                f"Cannot smell the objective indexed at {index}. The valid values are between 0 and {len(self._sm.objectives) - 1}"
+                f"Cannot smell the objective indexed at {index}. "
+                f"The valid values are between 0 and {len(self._sm.objectives) - 1}"
             )
         return self.calc_angle_to_objective(self._sm.objectives[index])
 

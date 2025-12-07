@@ -12,9 +12,9 @@ from kivy.clock import Clock
 from kivy.core.window import Window
 from kivy.lang import Builder
 
-from .Global import OBJECTIVE_DEFAULT_START_POS, ROBOT_DEFAULT_START_POS
 from .Model.Robot import Robot
-from .Scaler import Scaler
+from .Utils.Global import OBJECTIVE_DEFAULT_START_POS, ROBOT_DEFAULT_START_POS
+from .Utils.Scaler import Scaler
 from .View.Simbot import PySimbotMap, Simbot
 
 
@@ -81,11 +81,11 @@ class PySimbotApp(App):
         self.simbot.add_widget(self.simbotMap, index=1)
 
     def build(self):
+        root_widget = self.simbot
         if platform.system() == "Darwin":
             self._scaler = Scaler(size=Window.size, scale=2)
-            Window.add_widget(self._scaler)
-            parent = self._scaler or Window
-            parent.add_widget(self.simbot)
-        else:
-            Window.add_widget(self.simbot)
+            self._scaler.add_widget(self.simbot)
+            root_widget = self._scaler
+
+        Window.add_widget(root_widget)
         Clock.schedule_interval(self.simbot.process, self.interval)

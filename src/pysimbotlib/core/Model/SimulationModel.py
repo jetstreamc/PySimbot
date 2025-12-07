@@ -1,7 +1,8 @@
 from kivy.event import EventDispatcher
 from kivy.properties import ListProperty, NumericProperty, StringProperty
 
-# RobotEntity import will be added later or we use generic Entity for now to avoid circular deps if Robot is in separate file
+# RobotEntity import will be added later or we use generic Entity for now to
+# avoid circular deps if Robot is in separate file
 
 
 class SimulationModel(EventDispatcher):

@@ -9,10 +9,10 @@ from kivy.properties import NumericProperty, ObjectProperty, StringProperty
 from kivy.uix.boxlayout import BoxLayout
 from kivy.uix.widget import Widget
 
-from ..Global import SIMBOTMAP_SIZE
 from ..Model.Objective import Objective, ObjectiveWrapper
 from ..Model.Obstacle import ObstacleWrapper
 from ..Model.Robot import RobotWrapper
+from ..Utils.Global import SIMBOTMAP_SIZE
 
 
 class Simbot(BoxLayout):
