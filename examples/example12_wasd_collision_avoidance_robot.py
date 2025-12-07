@@ -1,6 +1,15 @@
 #!/usr/bin/python3
 
 
+"""
+Example 12: WASD Collision Avoidance
+====================================
+
+This example implements a robot that is controlled via WASD but has basic
+collision avoidance logic. If the robot gets stuck (collides), it will
+automatically try to turn to free itself.
+"""
+
 import random
 
 from kivy.config import Config

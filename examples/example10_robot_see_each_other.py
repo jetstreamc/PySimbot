@@ -1,5 +1,13 @@
 #!/usr/bin/python3
 
+"""
+Example 10: Robot Visibility
+============================
+
+This example enables robots to detect each other.
+- `robot_see_each_other=True` allows sensors to detect other robots as obstacles.
+- `num_robots=2` creates multiple agents to demonstrate interaction.
+"""
 
 from kivy.config import Config
 from kivy.logger import Logger

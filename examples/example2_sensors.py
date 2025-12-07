@@ -1,5 +1,14 @@
 #!/usr/bin/python3
 
+"""
+Example 2: Sensor Logging
+=========================
+
+This example demonstrates how to access robot sensor data.
+- Defines a custom robot `MyRobot`.
+- Logs 'smell' (angle to objective) and 'distance' (sensor readings) to the console.
+- Enables ray drawing (`draw_rays=True`) to visualize sensors.
+"""
 
 from kivy.config import Config
 from kivy.logger import Logger

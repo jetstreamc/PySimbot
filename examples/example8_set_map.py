@@ -1,5 +1,13 @@
 #!/usr/bin/python3
 
+"""
+Example 8: Map Selection
+========================
+
+This example demonstrates how to select different simulation maps.
+- `map="no_wall"` loads a map configuration without boundary walls.
+- "default" is the standard map.
+"""
 
 from kivy.config import Config
 

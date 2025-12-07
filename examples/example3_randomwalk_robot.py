@@ -1,5 +1,15 @@
 #!/usr/bin/python3
 
+"""
+Example 3: Random Walk Robot
+============================
+
+This example implements a simple "Random Walk" behavior.
+- The robot moves forward continuously.
+- Randomly decides to turn left or right at each update step.
+- multiple robots (`num_robots=2`) are spawned.
+"""
+
 import random
 
 from kivy.config import Config

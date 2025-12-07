@@ -1,5 +1,13 @@
 #!/usr/bin/python3
 
+"""
+Example 7: UI Theming
+=====================
+
+This example shows how to change the application theme.
+- `theme="light"` sets the UI to a light theme.
+- Other options include "default" and "dark".
+"""
 
 from kivy.config import Config
 

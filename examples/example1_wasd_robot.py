@@ -1,5 +1,17 @@
 #!/usr/bin/python3
 
+"""
+Example 1: WASD Robot Control
+=============================
+
+This example demonstrates how to control a robot using the WASD keys.
+- 'w': Move forward
+- 's': Move backward
+- 'a': Turn left
+- 'd': Turn right
+- 'q': Turn left and move forward
+- 'e': Turn right and move forward
+"""
 
 from kivy.config import Config
 
