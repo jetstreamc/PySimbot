@@ -1,15 +1,16 @@
 from kivy.config import Config
-Config.set("graphics", "resizable", "0") # 0 being off 1 being on as in true/false
+
+Config.set("graphics", "resizable", "0")  # 0 being off 1 being on as in true/false
 Config.set("input", "mouse", "mouse,multitouch_on_demand")
 
-from pathlib import Path
 import platform
+from pathlib import Path
+
 # ruff: noqa: E402
 from kivy.app import App
 from kivy.clock import Clock
 from kivy.core.window import Window
 from kivy.lang import Builder
-from kivy.metrics import Metrics
 
 from .Global import OBJECTIVE_DEFAULT_START_POS, ROBOT_DEFAULT_START_POS
 from .Robot import Robot

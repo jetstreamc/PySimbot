@@ -18,7 +18,7 @@
 
 <Objective>:
     group: 'obj'
-    size: 20, 20
+    # size: 20, 20
     pos: self.pos
     canvas:
         Color:
@@ -32,15 +32,15 @@
             size: self.width - 4, self.height - 4
             pos: self.x + 2, self.y + 2
 
-<Robot>:
+<RobotView>:
     direction: 0
-    size: 20, 20
+    # size: 20, 20  <-- Now handled by Model
     pos: self.pos
     color: (0.7, 0, 0, 1)
     canvas.before:
         PushMatrix
         Rotate:
-            angle: 360 - self._direction
+            angle: 360 - self.direction
             origin: self.center
 
         Color:

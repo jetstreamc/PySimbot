@@ -5,7 +5,10 @@ from kivy.uix.widget import Widget
 
 
 class Objective(Widget):
-    pass
+    def __init__(self, **kwargs):
+        kwargs.setdefault("size", (20, 20))
+        kwargs.setdefault("size_hint", (None, None))
+        super().__init__(**kwargs)
 
 
 class ObjectiveWrapper(Widget):

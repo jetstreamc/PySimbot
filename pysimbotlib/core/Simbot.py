@@ -88,12 +88,19 @@ class Simbot(BoxLayout):
         return self._objectives.get_objectives()
 
     def _create_robots(self):
-        self._robot_list = (
+        # Create Models
+        robots = (
             self.customfn_create_robots()
             if hasattr(self, "customfn_create_robots")
             else [self.robot_cls() for _ in range(self.num_robots)]
         )
-        for r in self._robot_list:
+
+        from .View.RobotView import RobotView
+
+        self._robot_list = robots  # Keep for compatibility and internal logic
+
+        for r in robots:
+            # Set initial pos on Model
             r.pos = self.robot_default_start_pos
             trial_count = 0
             while not self.is_robot_pos_valid(r):
@@ -105,8 +112,12 @@ class Simbot(BoxLayout):
                 trial_count += 1
                 if trial_count == 500:
                     raise Exception("Can't find the place for spawning robots")
-            r._sm = self
-            self._robots.add_widget(r)
+
+            r._sm = self  # Inject Controller/Env reference into Model
+
+            # Create View
+            view = RobotView(model=r)
+            self._robots.add_widget(view)
 
     def _create_objectives(self):
         self._objective_list = [Objective() for _ in range(self.num_objectives)]

@@ -11,19 +11,27 @@ from kivy.uix.widget import Widget
 
 from .Geom import Geom
 from .Global import ROBOT_DISTANCE_ANGLES, ROBOT_MAX_SENSOR_DISTANCE, SIMBOTMAP_BOUNDING_LINES, SIMBOTMAP_SIZE
+from .Model.Entity import Entity
 from .Objective import Objective
 from .Obstacle import Obstacle
 
 
-class Robot(Widget):
+class Robot(Entity):
     # Facing 0 degree direction
     _sm = None
     _direction = NumericProperty(0)
 
-    _color_r = NumericProperty(0)
+    # Defaults from original KV
+    # We set these in __init__ to ensure they override the Entity defaults properly
+    def __init__(self, **kwargs):
+        kwargs.setdefault("width", 20)
+        kwargs.setdefault("height", 20)
+        super().__init__(**kwargs)
+
+    _color_r = NumericProperty(0.7)
     _color_g = NumericProperty(0)
     _color_b = NumericProperty(0)
-    _color_a = NumericProperty(0)
+    _color_a = NumericProperty(1)
 
     color = ReferenceListProperty(_color_r, _color_g, _color_b, _color_a)
 
@@ -267,4 +275,12 @@ class Robot(Widget):
 
 class RobotWrapper(Widget):
     def get_robots(self) -> Generator[Robot, None, None]:
-        return (robot for robot in self.children if isinstance(robot, Robot))
+        # This wrapper now holds RobotViews, but Simbot might expect Robots.
+        # This needs careful handling.
+        # If Simbot uses this to iterate generic children, it gets Views.
+        # But Simbot logic expects Robot Models.
+
+        # We should NOT use this wrapper to access models anymore.
+        # Models should be in self.simbot.robots list.
+        # But for backward compat of this specific helper method:
+        return (view.model for view in self.children if hasattr(view, "model") and isinstance(view.model, Robot))
