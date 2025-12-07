@@ -1,6 +1,3 @@
-from .Robot import Robot
-# from .Objective import Objective
-# from .Obstacle import Obstacle
-from .Simbot import Simbot
-from .App import PySimbotApp
-# from .Geom import Geom
+from .App import PySimbotApp as PySimbotApp
+from .Robot import Robot as Robot
+from .Simbot import Simbot as Simbot

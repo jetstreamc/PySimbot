@@ -1,12 +1,11 @@
-from typing import Generator, Iterable, Tuple, Union
-
 import math
+from collections.abc import Generator, Iterable
+
 
 class Geom:
-    
-    Point2D = Tuple[float, float] # (x, y)
-    BBox = Tuple[float, float, float, float] # (x, y, w, h)
-    Line = Tuple[Point2D, Point2D] # ((x,y), (x,y))
+    Point2D = tuple[float, float]  # (x, y)
+    BBox = tuple[float, float, float, float]  # (x, y, w, h)
+    Line = tuple[Point2D, Point2D]  # ((x,y), (x,y))
 
     @staticmethod
     def is_bbox_overlap(bbox1: BBox, bbox2: BBox) -> bool:
@@ -32,7 +31,7 @@ class Geom:
             yield (top_left, buttom_left)
 
     @staticmethod
-    def line_segment_intersect(p1: Point2D, p2: Point2D, p3: Point2D, p4: Point2D) -> Union[None, Point2D]:
+    def line_segment_intersect(p1: Point2D, p2: Point2D, p3: Point2D, p4: Point2D) -> Point2D | None:
         # ref: http://www.cs.swan.ac.uk/~cssimon/line_intersection.html
         x1, y1 = p1
         x2, y2 = p2
@@ -45,38 +44,42 @@ class Geom:
             tb = ((y1 - y2) * (x1 - x3) + (x2 - x1) * (y1 - y3)) / denominator
             # segment has intersection
             if 0 <= ta <= 1 and 0 <= tb <= 1:
-                return (x1 + ta*(x2-x1), y1 + ta*(y2-y1))
+                return (x1 + ta * (x2 - x1), y1 + ta * (y2 - y1))
         return None
 
     @staticmethod
-    def line_segment_circle_intersect(p1: Point2D, p2: Point2D, center: Point2D, radius: float) -> Union[Tuple[None, None], Tuple[Point2D, None], Tuple[Point2D, Point2D]]:
+    def line_segment_circle_intersect(
+        p1: Point2D, p2: Point2D, center: Point2D, radius: float
+    ) -> tuple[None, None] | tuple[Point2D, None] | tuple[Point2D, Point2D]:
         x1, y1 = p1
         x2, y2 = p2
         xc, yc = center
-        a = (x2-x1)**2 + (y2-y1)**2
-        b = 2* ((x2-x1)*(x1-xc) + (y2-y1)*(y1-yc))
-        c = (x1-xc)**2 + (y1-yc)**2 - radius**2
-        discriminant = b**2 - 4*a*c
+        a = (x2 - x1) ** 2 + (y2 - y1) ** 2
+        b = 2 * ((x2 - x1) * (x1 - xc) + (y2 - y1) * (y1 - yc))
+        c = (x1 - xc) ** 2 + (y1 - yc) ** 2 - radius**2
+        discriminant = b**2 - 4 * a * c
         if discriminant < 0:
             return (None, None)
         elif discriminant == 0:
-            t = -b/(2*a)
-            return ((x1+t*(x2-x1), y1+t*(y2-y1)), None)
+            t = -b / (2 * a)
+            return ((x1 + t * (x2 - x1), y1 + t * (y2 - y1)), None)
         else:
-            t1 = (-b - math.sqrt(discriminant)) / (2*a)
-            t2 = (-b + math.sqrt(discriminant)) / (2*a)
-            return ((x1+t1*(x2-x1), y1+t1*(y2-y1)), (x1+t2*(x2-x1), y1+t2*(y2-y1)))
+            t1 = (-b - math.sqrt(discriminant)) / (2 * a)
+            t2 = (-b + math.sqrt(discriminant)) / (2 * a)
+            return ((x1 + t1 * (x2 - x1), y1 + t1 * (y2 - y1)), (x1 + t2 * (x2 - x1), y1 + t2 * (y2 - y1)))
 
     @staticmethod
     def distance(p1: Point2D, p2: Point2D) -> float:
-        return math.sqrt( (p1[0]-p2[0]) ** 2 + (p1[1]-p2[1]) ** 2 )
+        return math.sqrt((p1[0] - p2[0]) ** 2 + (p1[1] - p2[1]) ** 2)
 
     @staticmethod
-    def is_circle_rect_intersect(circle_center: Point2D, circle_radius: float, rect_center: Point2D, rect_width: float, rect_height: float) -> bool:
+    def is_circle_rect_intersect(
+        circle_center: Point2D, circle_radius: float, rect_center: Point2D, rect_width: float, rect_height: float
+    ) -> bool:
         # for more info: https://stackoverflow.com/a/402010
         dx = abs(circle_center[0] - rect_center[0])
         dy = abs(circle_center[1] - rect_center[1])
-        
+
         rect_half_width = 0.5 * rect_width
         rect_half_height = 0.5 * rect_height
 
@@ -90,4 +93,4 @@ class Geom:
 
         # check corner
         corner_distance_sq = (dx - rect_half_width) ** 2 + (dy - rect_half_height) ** 2
-        return corner_distance_sq <= circle_radius ** 2
+        return corner_distance_sq <= circle_radius**2
