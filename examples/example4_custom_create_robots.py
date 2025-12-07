@@ -1,5 +1,13 @@
 #!/usr/bin/python3
 
+"""
+Example 4: Custom Robot Creation
+================================
+
+This example demonstrates how to manually control robot instantiation.
+- Uses `customfn_create_robots` to supply a custom function `create_robots`.
+- Creates two different types of robots: `GoStraightRobot` and `TurnAroundRobot`.
+"""
 
 from pysimbotlib.core import PySimbotApp, Robot
 

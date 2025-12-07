@@ -76,7 +76,7 @@ class RobotView(Widget):
         distances = self.model.distance()  # Tuple of distances
 
         # Assume angles are known constant from Global
-        from ..Utils.Global import ROBOT_DISTANCE_ANGLES
+        from ..utils.globals import ROBOT_DISTANCE_ANGLES
 
         self.ray_instructions.add(Color(0, 0, 1, 1))  # Blue for high contrast
 

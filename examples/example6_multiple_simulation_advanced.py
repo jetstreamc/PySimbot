@@ -1,5 +1,16 @@
 #!/usr/bin/python3
 
+"""
+Example 6: Advanced Multiple Simulation
+=======================================
+
+This example demonstrates advanced hooks for simulation life-cycle.
+- `customfn_before_simulation`: Called before each run (used to randomize positions).
+- `customfn_after_simulation`: Called after each run (used to log stats).
+- Manages strict timing and high robot count (`num_robots=30`).
+- Demonstrates access to simulation statistics key like `eat_count` and `score`.
+"""
+
 import random
 import time
 

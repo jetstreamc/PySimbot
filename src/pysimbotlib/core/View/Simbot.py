@@ -9,11 +9,11 @@ from kivy.properties import BooleanProperty, NumericProperty, ObjectProperty, St
 from kivy.uix.boxlayout import BoxLayout
 from kivy.uix.widget import Widget
 
-from ..Model.Objective import Objective, ObjectiveWrapper
-from ..Model.Obstacle import ObstacleWrapper
-from ..Model.Robot import RobotWrapper
-from ..Utils.Geom import Geom
-from ..Utils.Global import SIMBOTMAP_SIZE
+from ..model.objective import Objective, ObjectiveWrapper
+from ..model.obstacle import ObstacleWrapper
+from ..model.robot import RobotWrapper
+from ..utils.geom import Geom
+from ..utils.globals import SIMBOTMAP_SIZE
 
 
 class Simbot(BoxLayout):
@@ -80,7 +80,7 @@ class Simbot(BoxLayout):
         self.draw_rays = draw_rays
 
         # Spatial Hash
-        from ..Utils.SpatialHash import SpatialHash
+        from ..utils.spatial_hash import SpatialHash
 
         self.spatial_hash = SpatialHash(cell_size=100)  # Cell size tunable
 
@@ -104,7 +104,7 @@ class Simbot(BoxLayout):
             else [self.robot_cls() for _ in range(self.num_robots)]
         )
 
-        from .RobotView import RobotView
+        from .robot_view import RobotView
 
         self._robot_list = robots  # Keep for compatibility and internal logic
 

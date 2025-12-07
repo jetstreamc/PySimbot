@@ -1,3 +1,3 @@
-from .App import PySimbotApp as PySimbotApp
-from .Model.Robot import Robot as Robot
-from .View.Simbot import Simbot as Simbot
+from .app import PySimbotApp as PySimbotApp
+from .model.robot import Robot as Robot
+from .view.simbot import Simbot as Simbot

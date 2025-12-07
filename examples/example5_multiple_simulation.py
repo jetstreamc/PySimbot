@@ -1,5 +1,14 @@
 #!/usr/bin/python3
 
+"""
+Example 5: Multiple Simulations
+===============================
+
+This example shows how to run continuous simulations.
+- `simulation_forever=True` restarts the simulation automatically.
+- `max_tick=200` limits each simulation to 200 iterations.
+- Automatically resets robot positions and state between runs.
+"""
 
 from pysimbotlib.core import PySimbotApp, Robot
 

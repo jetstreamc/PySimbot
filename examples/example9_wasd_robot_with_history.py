@@ -1,5 +1,13 @@
 #!/usr/bin/python3
 
+"""
+Example 9: Recording History
+============================
+
+This example enables recording of simulation history.
+- `save_wasd_history=True` saves robot movements to a CSV file.
+- `simulation_forever=True` allows continuous data collection across resets.
+"""
 
 from kivy.config import Config
 

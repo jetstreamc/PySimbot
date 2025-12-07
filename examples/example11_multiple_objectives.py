@@ -1,6 +1,18 @@
 #!/usr/bin/python3
 
 
+"""
+Example 11: Multiple Objectives
+===============================
+
+This example shows a simulation with multiple objectives (food sources) and robots
+that can see each other. It demonstrates:
+- Custom Robot class (`MyRobot`) with sensor logging.
+- Configuration for multiple objectives (`num_objectives=4`).
+- Enabling robot-to-robot visibility (`robot_see_each_other=True`).
+- Using a custom map without walls (`map="no_wall"`).
+"""
+
 from kivy.config import Config
 from kivy.logger import Logger
 

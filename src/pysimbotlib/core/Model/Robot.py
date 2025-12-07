@@ -8,11 +8,11 @@ from kivy.logger import Logger
 from kivy.properties import NumericProperty, ReferenceListProperty
 from kivy.uix.widget import Widget
 
-from ..Utils.Geom import Geom
-from ..Utils.Global import ROBOT_DISTANCE_ANGLES, ROBOT_MAX_SENSOR_DISTANCE, SIMBOTMAP_BOUNDING_LINES, SIMBOTMAP_SIZE
-from .Entity import Entity
-from .Objective import Objective
-from .Obstacle import Obstacle
+from ..utils.geom import Geom
+from ..utils.globals import ROBOT_DISTANCE_ANGLES, ROBOT_MAX_SENSOR_DISTANCE, SIMBOTMAP_BOUNDING_LINES, SIMBOTMAP_SIZE
+from .entity import Entity
+from .objective import Objective
+from .obstacle import Obstacle
 
 
 class Robot(Entity):

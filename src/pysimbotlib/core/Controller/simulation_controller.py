@@ -2,7 +2,7 @@ from kivy.clock import Clock
 from kivy.logger import Logger
 
 from ..Model.SimulationModel import SimulationModel
-from ..Utils.Geom import Geom
+from ..utils.geom import Geom
 
 
 class SimulationController:
