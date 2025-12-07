@@ -140,6 +140,8 @@ class Simbot(BoxLayout):
                 if trial_count == 500:
                     raise Exception("Can't find the place for spawning objective")
             self._objectives.add_widget(obj)
+            obj._sm = self  # Inject Controller/Env reference
+            self.spatial_hash.insert(obj, obj.x, obj.y, obj.width, obj.height)
 
     def _remove_all_robots_from_map(self):
         for r in self._robot_list:
@@ -148,6 +150,8 @@ class Simbot(BoxLayout):
         self._robot_list.clear()
 
     def _remove_all_objectives_from_map(self):
+        for obj in self._objective_list:
+            self.spatial_hash.remove(obj)
         self._objectives.clear_widgets()
         self._objective_list.clear()
 

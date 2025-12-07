@@ -161,14 +161,19 @@ class Robot(Entity):
         return True
 
     def _is_robot_collide_obstacles(self, p: Geom.Point2D, obstacles_included: Iterable[Obstacle] = None) -> bool:
-        if obstacles_included is None:
-            obstacles_included = self._sm.obstacles
-
         if p is None:
             p = self.pos
 
         robot_radius = 0.5 * self.width
         robot_center = (p[0] + robot_radius, p[1] + robot_radius)
+
+        # Optimize: Use SpatialHash if available and no specific override subset provided
+        if obstacles_included is None and self._sm and hasattr(self._sm, "spatial_hash"):
+            nearby = self._sm.spatial_hash.get_nearby(p[0], p[1], self.width, self.height)
+            obstacles_included = (entity for entity in nearby if isinstance(entity, Obstacle))
+        elif obstacles_included is None:
+            # Fallback to full list if spatial hash not ready (unlikely)
+            obstacles_included = self._sm.obstacles
 
         # Check obstacles
         for obs in obstacles_included:
@@ -220,7 +225,16 @@ class Robot(Entity):
     def _get_overlap_objective(self) -> Objective | None:
         robot_center = self.center
         robot_radius = 0.5 * self.size[0]
-        for obj in self._sm.objectives:
+
+        # Optimize: Use SpatialHash
+        candidates = []
+        if self._sm and hasattr(self._sm, "spatial_hash"):
+            nearby = self._sm.spatial_hash.get_nearby(self.x, self.y, self.width, self.height)
+            candidates = (entity for entity in nearby if isinstance(entity, Objective))
+        else:
+            candidates = self._sm.objectives
+
+        for obj in candidates:
             obj_width, obj_height = obj.size
             obj_center = (obj.pos[0] + 0.5 * obj_width, obj.pos[1] + 0.5 * obj_height)
             if Geom.is_circle_rect_intersect(robot_center, robot_radius, obj_center, obj_width, obj_height):
