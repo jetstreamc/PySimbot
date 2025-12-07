@@ -17,7 +17,9 @@ class Scaler(Widget):
     canvas.before:
         PushMatrix
         Scale:
-            scale: root.scale
+            x: root.scale
+            y: root.scale
+            z: 1
 
     canvas.after:
         PopMatrix

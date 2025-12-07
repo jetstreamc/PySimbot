@@ -45,7 +45,7 @@ class PySimbotApp(App):
 
         super(PySimbotApp, self).__init__(**kwargs)
         self.interval = interval
-        Window.size = (900 / Metrics.dp, 600 / Metrics.dp)
+        Window.size = (900, 600)
 
         map_file_name = "pysimbotlib/maps/%s.kv" % map
         theme_file_name = "pysimbotlib/themes/%s.kv" % theme
@@ -85,5 +85,4 @@ class PySimbotApp(App):
             parent.add_widget(self.simbot)
         else:
             Window.add_widget(self.simbot)
-
         Clock.schedule_interval(self.simbot.process, self.interval)
