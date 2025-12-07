@@ -5,7 +5,7 @@ import random
 
 from kivy.core.window import Window
 from kivy.logger import Logger
-from kivy.properties import NumericProperty, ObjectProperty, StringProperty
+from kivy.properties import BooleanProperty, NumericProperty, ObjectProperty, StringProperty
 from kivy.uix.boxlayout import BoxLayout
 from kivy.uix.widget import Widget
 
@@ -30,6 +30,7 @@ class Simbot(BoxLayout):
     food_move_count = NumericProperty(0)
     score = NumericProperty(0)
     scoreStr = StringProperty("")
+    draw_rays = BooleanProperty(False)
 
     def __init__(
         self,
@@ -45,6 +46,7 @@ class Simbot(BoxLayout):
         food_move_after_eat=True,
         save_wasd_history=False,
         robot_see_each_other=False,
+        draw_rays=False,
         **kwargs,
     ):
         super().__init__(**kwargs)
@@ -75,6 +77,7 @@ class Simbot(BoxLayout):
         self.food_move_after_eat = food_move_after_eat
         self.save_wasd_history = save_wasd_history
         self.robot_see_each_other = robot_see_each_other
+        self.draw_rays = draw_rays
 
         # Spatial Hash
         from ..Utils.SpatialHash import SpatialHash
@@ -123,7 +126,7 @@ class Simbot(BoxLayout):
                     raise Exception("Can't find the place for spawning robots")
 
             # Create View
-            view = RobotView(model=r)
+            view = RobotView(model=r, draw_rays=self.draw_rays)
             self._robots.add_widget(view)
 
     def _create_objectives(self):

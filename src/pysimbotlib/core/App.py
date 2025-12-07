@@ -40,6 +40,7 @@ class PySimbotApp(App):
         food_move_after_eat=True,
         save_wasd_history=False,
         robot_see_each_other=False,
+        draw_rays=False,
         **kwargs,
     ):
         super().__init__(**kwargs)
@@ -72,6 +73,7 @@ class PySimbotApp(App):
             food_move_after_eat=food_move_after_eat,
             save_wasd_history=save_wasd_history,
             robot_see_each_other=robot_see_each_other,
+            draw_rays=draw_rays,
         )
 
         self.simbotMap = PySimbotMap(
