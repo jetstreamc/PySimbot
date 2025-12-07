@@ -1,0 +1,350 @@
+#!/usr/bin/python3
+
+import csv
+import random
+
+from kivy.core.window import Window
+from kivy.logger import Logger
+from kivy.properties import BooleanProperty, NumericProperty, ObjectProperty, StringProperty
+from kivy.uix.boxlayout import BoxLayout
+from kivy.uix.widget import Widget
+
+from ..Model.Objective import Objective, ObjectiveWrapper
+from ..Model.Obstacle import ObstacleWrapper
+from ..Model.Robot import RobotWrapper
+from ..Utils.Geom import Geom
+from ..Utils.Global import SIMBOTMAP_SIZE
+
+
+class Simbot(BoxLayout):
+    _robots = ObjectProperty(None)
+    _obstacles = ObjectProperty(None)
+    _objectives = ObjectProperty(None)
+
+    iteration = NumericProperty(0)
+    max_tick = NumericProperty(0)
+    simulation_count = NumericProperty(0)
+
+    # stats
+    eat_count = NumericProperty(0)
+    food_move_count = NumericProperty(0)
+    score = NumericProperty(0)
+    scoreStr = StringProperty("")
+    draw_rays = BooleanProperty(False)
+
+    def __init__(
+        self,
+        robot_cls,
+        num_robots,
+        num_objectives,
+        robot_default_start_pos,
+        obj_default_start_pos,
+        customfn_create_robots=None,
+        customfn_before_simulation=None,
+        customfn_after_simulation=None,
+        simulation_forever=False,
+        food_move_after_eat=True,
+        save_wasd_history=False,
+        robot_see_each_other=False,
+        draw_rays=False,
+        **kwargs,
+    ):
+        super().__init__(**kwargs)
+
+        # initialize obstacles, objectives, and robot wrapper
+        self._obstacles = ObstacleWrapper()
+        self._objectives = ObjectiveWrapper()
+        self._robots = RobotWrapper()
+        self._objective_list = []
+        self._robot_list = []
+
+        # initialize robot creator function/params
+        if customfn_create_robots:
+            self.customfn_create_robots = customfn_create_robots
+        else:
+            self.robot_cls = robot_cls
+            self.num_robots = num_robots
+        self.robot_default_start_pos = robot_default_start_pos
+
+        # initialize food creator params
+        self.num_objectives = num_objectives
+        self.obj_default_start_pos = obj_default_start_pos
+
+        # intialize simulation parameters
+        self._before_simulation = customfn_before_simulation if customfn_before_simulation else lambda simbot: None
+        self._after_simulation = customfn_after_simulation if customfn_after_simulation else lambda simbot: None
+        self.simulation_forever = simulation_forever
+        self.food_move_after_eat = food_move_after_eat
+        self.save_wasd_history = save_wasd_history
+        self.robot_see_each_other = robot_see_each_other
+        self.draw_rays = draw_rays
+
+        # Spatial Hash
+        from ..Utils.SpatialHash import SpatialHash
+
+        self.spatial_hash = SpatialHash(cell_size=100)  # Cell size tunable
+
+    @property
+    def robots(self):
+        return self._robot_list
+
+    @property
+    def obstacles(self):
+        return self._obstacles.get_obstacles()
+
+    @property
+    def objectives(self):
+        return self._objectives.get_objectives()
+
+    def _create_robots(self):
+        # Create Models
+        robots = (
+            self.customfn_create_robots()
+            if hasattr(self, "customfn_create_robots")
+            else [self.robot_cls() for _ in range(self.num_robots)]
+        )
+
+        from .RobotView import RobotView
+
+        self._robot_list = robots  # Keep for compatibility and internal logic
+
+        for r in robots:
+            r._sm = self  # Inject Controller/Env reference into Model early for auto-hash update
+
+            # Set initial pos on Model (triggers on_pos -> hash insert)
+            r.pos = self.robot_default_start_pos
+
+            trial_count = 0
+            while not self.is_robot_pos_valid(r):
+                r.pos = (
+                    random.randrange(SIMBOTMAP_SIZE[0] - r.size[0]),
+                    random.randrange(SIMBOTMAP_SIZE[1] - r.size[1]),
+                )
+                r._direction = random.randrange(360)
+                trial_count += 1
+                if trial_count == 500:
+                    raise Exception("Can't find the place for spawning robots")
+
+            # Create View
+            view = RobotView(model=r, draw_rays=self.draw_rays)
+            self._robots.add_widget(view)
+
+    def _create_objectives(self):
+        self._objective_list = [Objective() for _ in range(self.num_objectives)]
+        for obj in self._objective_list:
+            obj.pos = self.obj_default_start_pos
+            trial_count = 0
+            while not self.is_objective_pos_valid(obj):
+                obj.pos = (
+                    random.randrange(SIMBOTMAP_SIZE[0] - obj.size[0]),
+                    random.randrange(SIMBOTMAP_SIZE[1] - obj.size[1]),
+                )
+                trial_count += 1
+                if trial_count == 500:
+                    raise Exception("Can't find the place for spawning objective")
+            self._objectives.add_widget(obj)
+            obj._sm = self  # Inject Controller/Env reference
+            self.spatial_hash.insert(obj, obj.x, obj.y, obj.width, obj.height)
+
+    def _remove_all_robots_from_map(self):
+        for r in self._robot_list:
+            self.spatial_hash.remove(r)
+        self._robots.clear_widgets()
+        self._robot_list.clear()
+
+    def _remove_all_objectives_from_map(self):
+        for obj in self._objective_list:
+            self.spatial_hash.remove(obj)
+        self._objectives.clear_widgets()
+        self._objective_list.clear()
+
+    def _init_obstacles_spatial_hash(self):
+        for obs in self.obstacles:
+            self.spatial_hash.insert(obs, obs.x, obs.y, obs.width, obs.height)
+
+    def _reset_stats(self):
+        self.eat_count = 0
+        self.food_move_count = 0
+        self.score = 0
+        if self.food_move_after_eat:
+            self.scoreStr = str(self.score) + " %"
+        else:
+            self.scoreStr = str(self.score)
+
+    def add_history(self, robot, turn, move):
+        distance = robot.distance()
+        angle = robot.smell()
+        if not self.history:
+            self.history.append(("ir0", "ir1", "ir2", "ir3", "ir4", "ir5", "ir6", "ir7", "angle", "turn", "move"))
+        self.history.append(list(distance) + [angle, turn, move])
+
+    def process(self, dt):
+        if self.iteration == 0:
+            self._reset_stats()
+            self._create_objectives()
+            self._init_obstacles_spatial_hash()
+            self._create_robots()
+            self._before_simulation(self)
+            self.history = []
+            self.simulation_count += 1
+            Logger.debug("Map: Start Simulation")
+            self.iteration += 1
+
+        elif self.iteration < self.max_tick:
+            self.iteration += 1
+            Logger.debug("Map: Start Iteration")
+            for robot in self._robots.get_robots():
+                robot.update()
+            Logger.debug(f"Map: End Iteration: {self.iteration}")
+
+            if self.iteration == self.max_tick:
+                self._after_simulation(self)
+                if self.save_wasd_history:
+                    Logger.debug("History: Saving History")
+                    with open(f"history{self.simulation_count}.csv", "w", newline="") as out_file:
+                        csv_writer = csv.writer(out_file)
+                        csv_writer.writerows(self.history if self.history else [["No history"]])
+
+                Logger.debug(f"Map: End Simulation: {self.simulation_count}")
+                if self.simulation_forever:
+                    self._remove_all_robots_from_map()
+                    self._remove_all_objectives_from_map()
+                    self.iteration = 0
+
+    def on_robot_eat(self, robot, obj):
+        self.eat_count += 1
+        if self.food_move_after_eat:
+            self.food_move_count += 1
+            self.change_objective_pos(obj)
+            self.score = int(self.eat_count * 100 / self.food_move_count)
+            self.scoreStr = str(self.score) + " %"
+        else:
+            self.score += 5
+            self.scoreStr = str(self.score)
+
+    def change_objective_pos(self, obj, pos=None):
+        if pos:
+            obj.pos = pos
+        else:
+            obj.pos = (
+                random.randrange(SIMBOTMAP_SIZE[0] - obj.size[0]),
+                random.randrange(SIMBOTMAP_SIZE[1] - obj.size[1]),
+            )
+            trial_count = 0
+            while not self.is_objective_pos_valid(obj):
+                obj.pos = (
+                    random.randrange(SIMBOTMAP_SIZE[0] - obj.size[0]),
+                    random.randrange(SIMBOTMAP_SIZE[1] - obj.size[1]),
+                )
+                trial_count += 1
+                if trial_count == 500:
+                    raise Exception("Can't find the place for spawning food")
+
+    def is_objective_pos_valid(self, obj):
+        pos = obj.pos
+        w, h = obj.size
+        # check wall
+        if pos[0] <= 0 or pos[0] >= SIMBOTMAP_SIZE[0] - w:
+            return False
+        if pos[1] <= 0 or pos[1] >= SIMBOTMAP_SIZE[1] - h:
+            return False
+
+        obj_bbox = (pos[0], pos[1], w, h)
+
+        # check obstacles
+        for obs in self.obstacles:
+            if Geom.is_bbox_overlap(obj_bbox, (obs.x, obs.y, obs.width, obs.height)):
+                return False
+
+        # check robots
+        for r in self._robot_list:
+            if Geom.is_bbox_overlap(obj_bbox, (r.x, r.y, r.width, r.height)):
+                return False
+
+        # check other objectives
+        for o in self._objective_list:
+            if obj == o:
+                continue
+            if Geom.is_bbox_overlap(obj_bbox, (o.x, o.y, o.width, o.height)):
+                return False
+
+        return True
+
+    def is_robot_pos_valid(self, robot):
+        pos = robot.pos
+        w, h = robot.size
+        if pos[0] <= 0 or pos[0] >= SIMBOTMAP_SIZE[0] - w:
+            return False
+        if pos[1] <= 0 or pos[1] >= SIMBOTMAP_SIZE[1] - h:
+            return False
+
+        robot_bbox = (pos[0], pos[1], w, h)
+
+        # check obstacles
+        # check nearby entities (obstacles and robots) using SpatialHash
+        nearby_entities = self.spatial_hash.get_nearby(pos[0], pos[1], w, h)
+
+        for entity in nearby_entities:
+            if entity == robot:
+                continue
+            if Geom.is_bbox_overlap(robot_bbox, (entity.x, entity.y, entity.width, entity.height)):
+                return False
+
+        return True
+
+
+class PySimbotMap(Widget):
+    def __init__(self, simbot, enable_wasd_control=False, save_wasd_history=False, **kwargs):
+        super().__init__(**kwargs)
+        self._keyboard = Window.request_keyboard(self._keyboard_closed, self)
+        self._keyboard.bind(on_key_down=self._on_keyboard_down)
+        self.enable_wasd_control = enable_wasd_control
+        self.save_wasd_history = save_wasd_history
+
+        self.add_widget(simbot._obstacles)
+        self.add_widget(simbot._objectives)
+        self.add_widget(simbot._robots)
+
+        self.simbot = simbot
+        self.size = SIMBOTMAP_SIZE
+
+    def _keyboard_closed(self):
+        self._keyboard.unbind(on_key_down=self._on_keyboard_down)
+        self._keyboard = None
+
+    def _on_keyboard_down(self, keyboard, keycode, text, modifiers):
+        if not self.simbot.robots:
+            return
+        if self.simbot.iteration >= self.simbot.max_tick:
+            return
+        if keycode[1] == "n":
+            for obj in self.simbot.objectives:
+                self.simbot.change_objective_pos(obj)
+                self.simbot.food_move_count += 1
+                self.simbot.score = int(self.simbot.eat_count * 100 / self.simbot.food_move_count)
+        elif keycode[1] == "w" and self.enable_wasd_control:
+            r = self.simbot.robots[0]
+            self.simbot.add_history(r, 0, 5)
+            r.move(5)
+        elif keycode[1] == "a" and self.enable_wasd_control:
+            r = self.simbot.robots[0]
+            self.simbot.add_history(r, -5, 0)
+            r.turn(-5)
+        elif keycode[1] == "d" and self.enable_wasd_control:
+            r = self.simbot.robots[0]
+            self.simbot.add_history(r, 5, 0)
+            r.turn(5)
+        elif keycode[1] == "s" and self.enable_wasd_control:
+            r = self.simbot.robots[0]
+            self.simbot.add_history(r, 0, -5)
+            r.move(-5)
+        elif keycode[1] == "q" and self.enable_wasd_control:
+            r = self.simbot.robots[0]
+            self.simbot.add_history(r, -5, 5)
+            r.turn(-5)
+            r.move(5)
+        elif keycode[1] == "e" and self.enable_wasd_control:
+            r = self.simbot.robots[0]
+            self.simbot.add_history(r, 5, 5)
+            r.turn(5)
+            r.move(5)
