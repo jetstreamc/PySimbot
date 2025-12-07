@@ -20,7 +20,6 @@ class Scaler(Widget):
             x: root.scale
             y: root.scale
             z: 1
-            origin: root.center
 
     canvas.after:
         PopMatrix
