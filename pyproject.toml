@@ -1,6 +1,6 @@
 [build-system]
-requires = ["setuptools>=61.0"]
-build-backend = "setuptools.build_meta"
+requires = ["hatchling"]
+build-backend = "hatchling.build"
 
 [project]
 name = "pysimbot"
@@ -11,6 +11,7 @@ requires-python = ">=3.10"
 license = { text = "GPL-3.0" }
 dependencies = [
     "kivy[base]>=2.2.1",
+    "kivy_examples>=2.2.1",
     "ffpyplayer>=4.5.0",
 ]
 
@@ -20,6 +21,9 @@ dev = [
     "mypy",
     "pytest",
 ]
+
+[tool.hatch.build.targets.wheel]
+packages = ["pysimbotlib"]
 
 [tool.ruff]
 line-length = 120
