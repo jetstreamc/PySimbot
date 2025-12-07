@@ -15,8 +15,11 @@ REFRESH_INTERVAL = 1 / 2
 
 class MyRobot(Robot):
     def update(self):
-        Logger.info(f"Smell Angle: {self.smell()}")
-        Logger.info(f"Distance: {self.distance()}")
+        smell_value = self.smell()
+        Logger.info(f"Smell Angle: {smell_value:.2f}")
+        distances = self.distance()
+        formatted = ", ".join(f"{d:5.1f}" for d in distances)
+        Logger.info(f"Distance: ({formatted})")
 
 
 if __name__ == "__main__":
