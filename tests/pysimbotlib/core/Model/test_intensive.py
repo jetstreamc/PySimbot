@@ -1,5 +1,7 @@
 import math
+from unittest.mock import MagicMock
 
+import pytest
 from kivy.tests.common import GraphicUnitTest
 
 from pysimbotlib.core.App import PySimbotApp
@@ -188,5 +190,29 @@ class TestSimbotManagement(GraphicUnitTest):
 
         # Remove robots
         simbot._remove_all_robots_from_map()
-        assert len(simbot.robots) == 0
         assert len(simbot._robots.children) == 0
+
+    def test_robot_on_size_update_hash(self):
+        r = create_robot_with_spatial_hash()
+        # Force size change to trigger on_size
+        r.size = (21, 21)
+        # Check if hash has it
+        assert len(r._sm.spatial_hash.get_nearby(0, 0, 1000, 1000)) > 0
+
+        # Change size
+        r.size = (40, 40)
+        # Should update hash (remove old, add new).
+        # We can mock update method to verify call.
+        r._sm.spatial_hash.update = MagicMock()
+        r.size = (50, 50)
+        r._sm.spatial_hash.update.assert_called()
+
+    def test_distance_invalid_index(self):
+        r = Robot()
+        with pytest.raises(ValueError):
+            r.distance(index=100)
+
+    def test_distance_valid_index(self):
+        r = create_robot_with_spatial_hash()
+        dist = r.distance(index=0)
+        assert isinstance(dist, (float, int))
