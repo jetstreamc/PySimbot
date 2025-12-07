@@ -37,7 +37,16 @@ class Robot(Entity):
     eat_count: int = 0
     collision_count: int = 0
     just_eat: bool = False
+
     stuck: bool = False
+
+    def on_pos(self, instance, value):
+        if self._sm and hasattr(self._sm, "spatial_hash"):
+            self._sm.spatial_hash.update(self, value[0], value[1], self.width, self.height)
+
+    def on_size(self, instance, value):
+        if self._sm and hasattr(self._sm, "spatial_hash"):
+            self._sm.spatial_hash.update(self, self.x, self.y, value[0], value[1])
 
     @staticmethod
     def distance_to_line_generators(
@@ -179,9 +188,20 @@ class Robot(Entity):
         robot_radius = 0.5 * self.width
         robot_center = (p[0] + robot_radius, p[1] + robot_radius)
 
-        for r in self._sm._robot_list:
-            if r != self and Geom.distance(r.center, robot_center) <= 2 * robot_radius:
-                return True
+        # Use SpatialHash
+        # Query area: centered at p with size of robot, plus margin?
+        # Actually, get_nearby takes x,y,w,h.
+
+        nearby_entities = self._sm.spatial_hash.get_nearby(p[0], p[1], self.width, self.height)
+
+        for entity in nearby_entities:
+            if entity == self:
+                continue
+
+            # Check if it's a robot (duck typing or isinstance)
+            if hasattr(entity, "eat_count"):  # Robot specific prop
+                if Geom.distance(entity.center, robot_center) <= 2 * robot_radius:
+                    return True
 
         return False
 

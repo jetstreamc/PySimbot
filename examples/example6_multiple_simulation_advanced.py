@@ -33,7 +33,13 @@ def before_sim(simbot_map: Simbot):
     Logger.info("Simulation: Before simulation.")
     Logger.info("Simulation: You can now do something with map objects or robots")
     for r in simbot_map.robots:
-        r.pos = (400, 30)
+        while True:
+            # Try a new random position
+            r.pos = (random.randint(0, 800 - r.width), random.randint(0, 600 - r.height))
+            # Check validity (walls, obstacles, other robots in hash)
+            if simbot_map.is_robot_pos_valid(r):
+                break
+
         r.set_color(random.random(), random.random(), random.random())
 
 

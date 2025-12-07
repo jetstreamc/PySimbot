@@ -106,8 +106,11 @@ class Simbot(BoxLayout):
         self._robot_list = robots  # Keep for compatibility and internal logic
 
         for r in robots:
-            # Set initial pos on Model
+            r._sm = self  # Inject Controller/Env reference into Model early for auto-hash update
+
+            # Set initial pos on Model (triggers on_pos -> hash insert)
             r.pos = self.robot_default_start_pos
+
             trial_count = 0
             while not self.is_robot_pos_valid(r):
                 r.pos = (
@@ -118,8 +121,6 @@ class Simbot(BoxLayout):
                 trial_count += 1
                 if trial_count == 500:
                     raise Exception("Can't find the place for spawning robots")
-
-            r._sm = self  # Inject Controller/Env reference into Model
 
             # Create View
             view = RobotView(model=r)
@@ -174,8 +175,8 @@ class Simbot(BoxLayout):
         if self.iteration == 0:
             self._reset_stats()
             self._create_objectives()
-            self._create_robots()
             self._init_obstacles_spatial_hash()
+            self._create_robots()
             self._before_simulation(self)
             self.history = []
             self.simulation_count += 1
@@ -187,8 +188,6 @@ class Simbot(BoxLayout):
             Logger.debug("Map: Start Iteration")
             for robot in self._robots.get_robots():
                 robot.update()
-                # Update spatial hash
-                self.spatial_hash.update(robot, robot.x, robot.y, robot.width, robot.height)
             Logger.debug(f"Map: End Iteration: {self.iteration}")
 
             if self.iteration == self.max_tick:
