@@ -40,9 +40,10 @@ class Robot(Entity):
     just_eat: bool = False
     stuck: bool = False
 
-    @cache
     def get_obstacles_bboxes(self) -> Generator[Geom.BBox, None, None]:
-        return tuple((obs.x, obs.y, obs.width, obs.height) for obs in self._sm.obstacles)
+        if not hasattr(self, "_cached_bboxes"):
+            self._cached_bboxes = tuple((obs.x, obs.y, obs.width, obs.height) for obs in self._sm.obstacles)
+        return self._cached_bboxes
 
     @staticmethod
     def distance_to_line_generators(
