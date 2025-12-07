@@ -9,9 +9,9 @@ from kivy.logger import Logger
 from kivy.properties import NumericProperty, ReferenceListProperty
 from kivy.uix.widget import Widget
 
-from .Geom import Geom
-from .Global import ROBOT_DISTANCE_ANGLES, ROBOT_MAX_SENSOR_DISTANCE, SIMBOTMAP_BOUNDING_LINES, SIMBOTMAP_SIZE
-from .Model.Entity import Entity
+from ..Geom import Geom
+from ..Global import ROBOT_DISTANCE_ANGLES, ROBOT_MAX_SENSOR_DISTANCE, SIMBOTMAP_BOUNDING_LINES, SIMBOTMAP_SIZE
+from .Entity import Entity
 from .Objective import Objective
 from .Obstacle import Obstacle
 

@@ -9,10 +9,10 @@ from kivy.properties import NumericProperty, ObjectProperty, StringProperty
 from kivy.uix.boxlayout import BoxLayout
 from kivy.uix.widget import Widget
 
-from .Global import SIMBOTMAP_SIZE
-from .Objective import Objective, ObjectiveWrapper
-from .Obstacle import ObstacleWrapper
-from .Robot import RobotWrapper
+from ..Global import SIMBOTMAP_SIZE
+from ..Model.Objective import Objective, ObjectiveWrapper
+from ..Model.Obstacle import ObstacleWrapper
+from ..Model.Robot import RobotWrapper
 
 
 class Simbot(BoxLayout):
@@ -95,7 +95,7 @@ class Simbot(BoxLayout):
             else [self.robot_cls() for _ in range(self.num_robots)]
         )
 
-        from .View.RobotView import RobotView
+        from .RobotView import RobotView
 
         self._robot_list = robots  # Keep for compatibility and internal logic
 

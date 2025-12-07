@@ -13,9 +13,9 @@ from kivy.core.window import Window
 from kivy.lang import Builder
 
 from .Global import OBJECTIVE_DEFAULT_START_POS, ROBOT_DEFAULT_START_POS
-from .Robot import Robot
+from .Model.Robot import Robot
 from .Scaler import Scaler
-from .Simbot import PySimbotMap, Simbot
+from .View.Simbot import PySimbotMap, Simbot
 
 
 class PySimbotApp(App):

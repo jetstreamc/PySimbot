@@ -1,5 +1,5 @@
 from pysimbotlib.core.Global import ROBOT_MAX_SENSOR_DISTANCE
-from pysimbotlib.core.Robot import Robot
+from pysimbotlib.core.Model.Robot import Robot
 
 
 def test_distance_to_line_generators():

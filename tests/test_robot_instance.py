@@ -1,6 +1,6 @@
 from unittest.mock import MagicMock
 
-from pysimbotlib.core.Robot import Robot
+from pysimbotlib.core.Model.Robot import Robot
 
 
 class MockSimbot:

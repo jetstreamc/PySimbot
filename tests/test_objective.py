@@ -1,4 +1,4 @@
-from pysimbotlib.core.Objective import Objective
+from pysimbotlib.core.Model.Objective import Objective
 
 
 def test_objective_initialization():
