@@ -46,8 +46,10 @@ class PySimbotApp(App):
         self.interval = interval
         Window.size = (900, 600)
 
-        map_file = Path("pysimbotlib/maps") / f"{map}.kv"
-        theme_file = Path("pysimbotlib/themes") / f"{theme}.kv"
+        # pysimbotlib/core/App.py -> pysimbotlib/
+        package_root = Path(__file__).parent.parent
+        map_file = package_root / "maps" / f"{map}.kv"
+        theme_file = package_root / "themes" / f"{theme}.kv"
         if not map_file.exists():
             raise FileNotFoundError(f"File [{map_file}] is not found.")
         if not theme_file.exists():

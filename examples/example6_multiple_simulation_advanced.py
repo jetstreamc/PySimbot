@@ -1,10 +1,7 @@
 #!/usr/bin/python3
 
-import os
-import platform
-
-if platform.system() == "Linux" or platform.system() == "Darwin":
-    os.environ["KIVY_VIDEO"] = "ffpyplayer"
+import random
+import time
 
 from kivy.config import Config
 from kivy.logger import Logger
@@ -14,9 +11,6 @@ from pysimbotlib.core import PySimbotApp, Robot, Simbot
 # Force the program to show user's log only for "info" level or more. The info log will be disabled.
 Config.set("kivy", "log_level", "info")
 Config.set("graphics", "maxfps", 10)
-
-import random
-import time
 
 
 class RandomWalkRobot(Robot):
