@@ -4,11 +4,11 @@ from unittest.mock import MagicMock
 import pytest
 from kivy.tests.common import GraphicUnitTest
 
-from pysimbotlib.core.App import PySimbotApp
-from pysimbotlib.core.Model.Obstacle import Obstacle
-from pysimbotlib.core.Model.Robot import Robot
-from pysimbotlib.core.Utils.Geom import Geom
-from pysimbotlib.core.Utils.SpatialHash import SpatialHash
+from pysimbotlib.core.app import PySimbotApp
+from pysimbotlib.core.model.obstacle import Obstacle
+from pysimbotlib.core.model.robot import Robot
+from pysimbotlib.core.utils.geom import Geom
+from pysimbotlib.core.utils.spatial_hash import SpatialHash
 
 
 class MockSimbot:

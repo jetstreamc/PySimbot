@@ -1,4 +1,4 @@
-from pysimbotlib.core.Model.Obstacle import Obstacle
+from pysimbotlib.core.model.obstacle import Obstacle
 
 
 def test_obstacle_initialization():

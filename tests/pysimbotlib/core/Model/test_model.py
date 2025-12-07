@@ -1,4 +1,4 @@
-from pysimbotlib.core.Model.SimulationModel import SimulationModel
+from pysimbotlib.core.model.simulation_model import SimulationModel
 
 
 def test_model_initialization():

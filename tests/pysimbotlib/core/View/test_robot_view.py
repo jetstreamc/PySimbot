@@ -2,8 +2,8 @@ from unittest.mock import MagicMock
 
 from kivy.tests.common import GraphicUnitTest
 
-from pysimbotlib.core.Model.Robot import Robot
-from pysimbotlib.core.View.RobotView import RobotView
+from pysimbotlib.core.model.robot import Robot
+from pysimbotlib.core.view.robot_view import RobotView
 
 
 class TestRobotView(GraphicUnitTest):

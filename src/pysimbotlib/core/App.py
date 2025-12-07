@@ -12,10 +12,10 @@ from kivy.clock import Clock
 from kivy.core.window import Window
 from kivy.lang import Builder
 
-from .Model.Robot import Robot
-from .Utils.Global import OBJECTIVE_DEFAULT_START_POS, ROBOT_DEFAULT_START_POS
-from .Utils.Scaler import Scaler
-from .View.Simbot import PySimbotMap, Simbot
+from .model.robot import Robot
+from .utils.globals import OBJECTIVE_DEFAULT_START_POS, ROBOT_DEFAULT_START_POS
+from .utils.scaler import Scaler
+from .view.simbot import PySimbotMap, Simbot
 
 
 class PySimbotApp(App):

@@ -1,9 +1,9 @@
 from kivy.tests.common import GraphicUnitTest
 
-from pysimbotlib.core.App import PySimbotApp
-from pysimbotlib.core.Model.Objective import Objective
-from pysimbotlib.core.Model.Obstacle import Obstacle
-from pysimbotlib.core.Model.Robot import Robot
+from pysimbotlib.core.app import PySimbotApp
+from pysimbotlib.core.model.objective import Objective
+from pysimbotlib.core.model.obstacle import Obstacle
+from pysimbotlib.core.model.robot import Robot
 
 
 class TestSpatialHashIntegration(GraphicUnitTest):

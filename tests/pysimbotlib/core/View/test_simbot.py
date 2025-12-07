@@ -2,10 +2,10 @@ from unittest.mock import MagicMock, PropertyMock, patch
 
 from kivy.tests.common import GraphicUnitTest
 
-from pysimbotlib.core.App import PySimbotApp
-from pysimbotlib.core.Model.Robot import Robot
-from pysimbotlib.core.Utils.SpatialHash import SpatialHash
-from pysimbotlib.core.View.Simbot import Simbot
+from pysimbotlib.core.app import PySimbotApp
+from pysimbotlib.core.model.robot import Robot
+from pysimbotlib.core.utils.spatial_hash import SpatialHash
+from pysimbotlib.core.view.simbot import Simbot
 
 
 class TestSimbot(GraphicUnitTest):

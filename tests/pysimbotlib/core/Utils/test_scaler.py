@@ -3,7 +3,7 @@ from unittest.mock import MagicMock
 from kivy.tests.common import GraphicUnitTest
 from kivy.uix.widget import Widget
 
-from pysimbotlib.core.Utils.Scaler import Scaler
+from pysimbotlib.core.utils.scaler import Scaler
 
 
 class TestScaler(GraphicUnitTest):

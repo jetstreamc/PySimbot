@@ -1,4 +1,4 @@
-from pysimbotlib.core.Utils.Geom import Geom
+from pysimbotlib.core.utils.geom import Geom
 
 
 def test_is_bbox_overlap():
