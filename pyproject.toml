@@ -1,6 +1,6 @@
 [build-system]
-requires = ["hatchling"]
-build-backend = "hatchling.build"
+requires = ["uv-build"]
+build-backend = "uv_build"
 
 [project]
 name = "pysimbot"
@@ -22,8 +22,8 @@ dev = [
     "pytest",
 ]
 
-[tool.hatch.build.targets.wheel]
-packages = ["pysimbotlib"]
+[tool.uv.build-backend]
+module-name = "pysimbotlib"
 
 [tool.ruff]
 line-length = 120
