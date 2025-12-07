@@ -76,6 +76,11 @@ class Simbot(BoxLayout):
         self.save_wasd_history = save_wasd_history
         self.robot_see_each_other = robot_see_each_other
 
+        # Spatial Hash
+        from ..Utils.SpatialHash import SpatialHash
+
+        self.spatial_hash = SpatialHash(cell_size=100)  # Cell size tunable
+
     @property
     def robots(self):
         return self._robot_list
@@ -136,12 +141,18 @@ class Simbot(BoxLayout):
             self._objectives.add_widget(obj)
 
     def _remove_all_robots_from_map(self):
+        for r in self._robot_list:
+            self.spatial_hash.remove(r)
         self._robots.clear_widgets()
         self._robot_list.clear()
 
     def _remove_all_objectives_from_map(self):
         self._objectives.clear_widgets()
         self._objective_list.clear()
+
+    def _init_obstacles_spatial_hash(self):
+        for obs in self.obstacles:
+            self.spatial_hash.insert(obs, obs.x, obs.y, obs.width, obs.height)
 
     def _reset_stats(self):
         self.eat_count = 0
@@ -164,6 +175,7 @@ class Simbot(BoxLayout):
             self._reset_stats()
             self._create_objectives()
             self._create_robots()
+            self._init_obstacles_spatial_hash()
             self._before_simulation(self)
             self.history = []
             self.simulation_count += 1
@@ -175,6 +187,8 @@ class Simbot(BoxLayout):
             Logger.debug("Map: Start Iteration")
             for robot in self._robots.get_robots():
                 robot.update()
+                # Update spatial hash
+                self.spatial_hash.update(robot, robot.x, robot.y, robot.width, robot.height)
             Logger.debug(f"Map: End Iteration: {self.iteration}")
 
             if self.iteration == self.max_tick:
@@ -261,17 +275,14 @@ class Simbot(BoxLayout):
         robot_bbox = (pos[0], pos[1], w, h)
 
         # check obstacles
-        for obs in self.obstacles:
-            if Geom.is_bbox_overlap(robot_bbox, (obs.x, obs.y, obs.width, obs.height)):
-                return False
+        # check nearby entities (obstacles and robots) using SpatialHash
+        nearby_entities = self.spatial_hash.get_nearby(pos[0], pos[1], w, h)
 
-        # check other robots
-        if self.robot_see_each_other:
-            for r in self._robot_list:
-                if robot == r:
-                    continue
-                if Geom.is_bbox_overlap(robot_bbox, (r.x, r.y, r.width, r.height)):
-                    return False
+        for entity in nearby_entities:
+            if entity == robot:
+                continue
+            if Geom.is_bbox_overlap(robot_bbox, (entity.x, entity.y, entity.width, entity.height)):
+                return False
 
         return True
 

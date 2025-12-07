@@ -2,7 +2,6 @@
 
 import math
 from collections.abc import Generator, Iterable, Sequence
-from functools import cache
 from itertools import chain
 
 from kivy.logger import Logger
@@ -40,11 +39,6 @@ class Robot(Entity):
     just_eat: bool = False
     stuck: bool = False
 
-    def get_obstacles_bboxes(self) -> Generator[Geom.BBox, None, None]:
-        if not hasattr(self, "_cached_bboxes"):
-            self._cached_bboxes = tuple((obs.x, obs.y, obs.width, obs.height) for obs in self._sm.obstacles)
-        return self._cached_bboxes
-
     @staticmethod
     def distance_to_line_generators(
         sensor_coor: Geom.Point2D, sensor_coverage_coor: Geom.Point2D, bounding_lines
@@ -66,7 +60,6 @@ class Robot(Entity):
         yield ROBOT_MAX_SENSOR_DISTANCE
 
     @staticmethod
-    @cache
     def _min_distance_to_wall_or_obstacle(
         obstacle_bboxes: Iterable[Geom.BBox], sensor_coor: Geom.Point2D, sensor_coverage_coor: Geom.Point2D
     ) -> float:
@@ -97,24 +90,43 @@ class Robot(Entity):
             sensor_coor[1] + unit_y * ROBOT_MAX_SENSOR_DISTANCE,
         )
 
-        obstacle_bboxes = self.get_obstacles_bboxes()
+        x = min(sensor_coor[0], sensor_coverage_coor[0])
+        y = min(sensor_coor[1], sensor_coverage_coor[1])
+        w = abs(sensor_coor[0] - sensor_coverage_coor[0])
+        h = abs(sensor_coor[1] - sensor_coverage_coor[1])
+
+        nearby_entities = self._sm.spatial_hash.get_nearby(x, y, w, h)
+
+        # Filter into obstacles and robots
+        nearby_obstacles = []
+        nearby_robots = []
+
+        for entity in nearby_entities:
+            # Check if entity is really intersecting the ray's bounding box (get_nearby returns potential candidates)
+            # The spatial hash already returns candidates in cell.
+            # We can refine:
+            if hasattr(entity, "width"):  # Check if it has dimensions
+                if entity == self:
+                    continue
+
+                # Basic type check - assume Simbot ensures obstacles and robots are distinct types or we check props
+                # In Simbot.py, obstacles are in self.obstacles, robots in self._robot_list
+                # But we don't want O(N) checks.
+                # Let's check type.
+                if isinstance(entity, Robot):
+                    nearby_robots.append(entity)
+                else:
+                    nearby_obstacles.append(entity)
+
+        obstacle_bboxes = ((obs.x, obs.y, obs.width, obs.height) for obs in nearby_obstacles)
+
         min_distance_to_wall_and_obs = Robot._min_distance_to_wall_or_obstacle(
             obstacle_bboxes, sensor_coor, sensor_coverage_coor
         )
 
         if self._sm.robot_see_each_other:
-            x = min(sensor_coor[0], sensor_coverage_coor[0])
-            y = min(sensor_coor[1], sensor_coverage_coor[1])
-            w = abs(sensor_coor[0] - sensor_coverage_coor[0])
-            h = abs(sensor_coor[1] - sensor_coverage_coor[1])
-            ROI = (x, y, w, h)
-            other_robots_in_ROI = (
-                r
-                for r in self._sm._robot_list
-                if r != self and Geom.is_bbox_overlap(ROI, (r.x, r.y, r.width, r.height))
-            )
             min_distance_to_other_robot = min(
-                Robot.distance_to_robot_generators(sensor_coor, sensor_coverage_coor, other_robots_in_ROI)
+                Robot.distance_to_robot_generators(sensor_coor, sensor_coverage_coor, nearby_robots)
             )
             return min(min_distance_to_wall_and_obs, min_distance_to_other_robot)
         else:

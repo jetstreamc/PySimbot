@@ -67,6 +67,7 @@ if __name__ == "__main__":
         max_tick=500,
         interval=1 / 1000.0,
         simulation_forever=True,
+        robot_see_each_other=True,
         customfn_before_simulation=before_sim,
         customfn_after_simulation=after_sim,
         food_move_after_eat=False,
