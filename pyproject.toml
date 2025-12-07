@@ -22,6 +22,12 @@ dev = [
     "pytest",
 ]
 
+ml = [
+    "numpy",
+    "keras",
+    "tensorflow",
+]
+
 [tool.uv.build-backend]
 module-name = "pysimbotlib"
 
