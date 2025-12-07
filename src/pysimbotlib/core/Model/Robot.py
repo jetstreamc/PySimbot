@@ -250,17 +250,30 @@ class Robot(Entity):
         next_position = (self.pos[0] + step * dx, self.pos[1] + step * dy)
         # check if the robot cannot go by longest distance.
         if not self._is_valid_position(next_position):
-            # start from robot position, find the longest distance possible for robot to go.
-            next_position = self.pos
-            for distance in range(0, step, 1):
-                next_position_to_validate = (next_position[0] + dx, next_position[1] + dy)
-                # If can move
-                if not self._is_valid_position(next_position_to_validate):
-                    self.collision_count += 1
-                    if distance == 0:
-                        self.stuck = True
-                    break
-                next_position = next_position_to_validate
+            # Binary search for the furthest valid position
+            low = 0
+            high = step
+            best_dist = 0
+
+            while low <= high:
+                mid = (low + high) // 2
+                check_pos = (self.pos[0] + mid * dx, self.pos[1] + mid * dy)
+                if self._is_valid_position(check_pos):
+                    best_dist = mid
+                    low = mid + 1
+                else:
+                    high = mid - 1
+
+            # The robot is stuck if the best distance it can move is 0
+            if best_dist == 0:
+                self.stuck = True
+
+            # Update collision count if we couldn't complete the full step
+            if best_dist < step:
+                self.collision_count += 1
+
+            next_position = (self.pos[0] + best_dist * dx, self.pos[1] + best_dist * dy)
+
         self.pos = next_position
 
         obj = self._get_overlap_objective()

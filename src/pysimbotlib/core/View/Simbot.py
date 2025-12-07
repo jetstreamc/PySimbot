@@ -12,6 +12,7 @@ from kivy.uix.widget import Widget
 from ..Model.Objective import Objective, ObjectiveWrapper
 from ..Model.Obstacle import ObstacleWrapper
 from ..Model.Robot import RobotWrapper
+from ..Utils.Geom import Geom
 from ..Utils.Global import SIMBOTMAP_SIZE
 
 
@@ -221,61 +222,47 @@ class Simbot(BoxLayout):
 
     def is_objective_pos_valid(self, obj):
         pos = obj.pos
+        w, h = obj.size
         # check wall
-        if pos[0] <= 0 or pos[0] >= SIMBOTMAP_SIZE[0] - obj.size[0]:
+        if pos[0] <= 0 or pos[0] >= SIMBOTMAP_SIZE[0] - w:
             return False
-        if pos[1] <= 0 or pos[1] >= SIMBOTMAP_SIZE[1] - obj.size[1]:
+        if pos[1] <= 0 or pos[1] >= SIMBOTMAP_SIZE[1] - h:
             return False
+
+        obj_bbox = (pos[0], pos[1], w, h)
 
         # check obstacles
         for obs in self.obstacles:
-            if (
-                obs.pos[0] <= pos[0] <= obs.pos[0] + obs.size[0]
-                or obs.pos[0] <= pos[0] + obj.size[0] <= obs.pos[0] + obs.size[0]
-            ) and (
-                obs.pos[1] <= pos[1] <= obs.pos[1] + obs.size[1]
-                or obs.pos[1] <= pos[1] + obj.size[1] <= obs.pos[1] + obs.size[1]
-            ):
+            if Geom.is_bbox_overlap(obj_bbox, (obs.x, obs.y, obs.width, obs.height)):
                 return False
 
         # check robots
         for r in self._robot_list:
-            if (
-                r.pos[0] <= pos[0] <= r.pos[0] + r.size[0] or r.pos[0] <= pos[0] + obj.size[0] <= r.pos[0] + r.size[0]
-            ) and (
-                r.pos[1] <= pos[1] <= r.pos[1] + r.size[1] or r.pos[1] <= pos[1] + obj.size[1] <= r.pos[1] + r.size[1]
-            ):
+            if Geom.is_bbox_overlap(obj_bbox, (r.x, r.y, r.width, r.height)):
                 return False
 
         # check other objectives
         for o in self._objective_list:
             if obj == o:
                 continue
-            if (
-                o.pos[0] <= pos[0] <= o.pos[0] + o.size[0] or o.pos[0] <= pos[0] + obj.size[0] <= o.pos[0] + o.size[0]
-            ) and (
-                o.pos[1] <= pos[1] <= o.pos[1] + o.size[1] or o.pos[1] <= pos[1] + obj.size[1] <= o.pos[1] + o.size[1]
-            ):
+            if Geom.is_bbox_overlap(obj_bbox, (o.x, o.y, o.width, o.height)):
                 return False
 
         return True
 
     def is_robot_pos_valid(self, robot):
         pos = robot.pos
-        if pos[0] <= 0 or pos[0] >= SIMBOTMAP_SIZE[0] - robot.size[0]:
+        w, h = robot.size
+        if pos[0] <= 0 or pos[0] >= SIMBOTMAP_SIZE[0] - w:
             return False
-        if pos[1] <= 0 or pos[1] >= SIMBOTMAP_SIZE[1] - robot.size[1]:
+        if pos[1] <= 0 or pos[1] >= SIMBOTMAP_SIZE[1] - h:
             return False
+
+        robot_bbox = (pos[0], pos[1], w, h)
 
         # check obstacles
         for obs in self.obstacles:
-            if (
-                obs.pos[0] <= pos[0] <= obs.pos[0] + obs.size[0]
-                or obs.pos[0] <= pos[0] + robot.size[0] <= obs.pos[0] + obs.size[0]
-            ) and (
-                obs.pos[1] <= pos[1] <= obs.pos[1] + obs.size[1]
-                or obs.pos[1] <= pos[1] + robot.size[1] <= obs.pos[1] + obs.size[1]
-            ):
+            if Geom.is_bbox_overlap(robot_bbox, (obs.x, obs.y, obs.width, obs.height)):
                 return False
 
         # check other robots
@@ -283,13 +270,7 @@ class Simbot(BoxLayout):
             for r in self._robot_list:
                 if robot == r:
                     continue
-                if (
-                    r.pos[0] <= pos[0] <= r.pos[0] + r.size[0]
-                    or r.pos[0] <= pos[0] + robot.size[0] <= r.pos[0] + r.size[0]
-                ) and (
-                    r.pos[1] <= pos[1] <= r.pos[1] + r.size[1]
-                    or r.pos[1] <= pos[1] + robot.size[1] <= r.pos[1] + r.size[1]
-                ):
+                if Geom.is_bbox_overlap(robot_bbox, (r.x, r.y, r.width, r.height)):
                     return False
 
         return True
